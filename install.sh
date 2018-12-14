@@ -74,8 +74,16 @@ if [ ${ENABLE_PMU} -eq 1 ]; then
     echo 'downloading uarch spec and topdown metrics ...'
   fi
   #Download uarch spec database and pmu js
-  $XPEDITE_DIR/scripts/bin/xpedite list >/dev/null 2>&1 
+  $XPEDITE_DIR/scripts/bin/xpedite list
   if [ $? -ne 0 ]; then
     echo failed to install micro architecture spec files
   fi
 fi
+
+PATH=${RUNTIME_DIR}:${PATH} $XPEDITE_DIR/scripts/bin/xpedite list
+
+echo 'perf list'
+perf list
+
+echo 'perf stat'
+perf stat -e mem-loads ls

@@ -49,6 +49,10 @@ while true ; do
   esac
 done
 
+echo '/proc/sys/kernel/perf_event_paranoid ----------------> '
+cat /proc/sys/kernel/perf_event_paranoid
+echo '/proc/sys/kernel/perf_event_paranoid ----------------> '
+
 DEMO_DIR=`dirname $0`
 DEMO_DIR=`readlink -f ${DEMO_DIR}`
 
@@ -86,3 +90,5 @@ if [ ! -z ${DEMO_APP_PID} ]; then
   ${APP_LAUNCHER} "kill ${DEMO_APP_PID}"
 fi
 wait
+
+cat $LOG_DIR/app.log
