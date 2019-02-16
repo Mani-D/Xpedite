@@ -18,6 +18,7 @@
 #include <xpedite/pmu/EventSelect.h>
 #include <xpedite/pmu/FixedPmcSet.H>
 #include <xpedite/perf/PerfEventAttrSet.H>
+#include <xpedite/perf/PerfRecord.H>
 #include <xpedite/log/Log.H>
 
 namespace xpedite { namespace perf {
@@ -55,6 +56,16 @@ namespace xpedite { namespace perf {
       perfEventAttrSet.addPMUEvent(PERF_TYPE_RAW, 0x13c, excludeUser, excludeKernel);
     }
     return perfEventAttrSet;
+  }
+
+  PerfEventAttrSet buildPerfTraceAttrs(const std::vector<int>& traces_) noexcept {
+    PerfEventAttrSet traceAttrSet {};
+    auto sampleTypeMask = PerfSamplesRecord::sampleTypeMask();
+    auto readFormatMask = ReadFormat::readFormatMask();
+    for(auto traceId : traces_) {
+      traceAttrSet.addSamplingEvent(PERF_TYPE_TRACEPOINT, traceId, sampleTypeMask, readFormatMask, {}, {});
+    }
+    return traceAttrSet;
   }
 
   const char* eventTypeToString(uint32_t eventType_) {

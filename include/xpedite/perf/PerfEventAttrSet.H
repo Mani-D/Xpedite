@@ -19,7 +19,9 @@
 #include <xpedite/pmu/EventSet.h>
 #include <linux/perf_event.h>
 #include <array>
+#include <vector>
 #include <stdexcept>
+#include <linux/version.h>
 
 namespace xpedite { namespace perf {
 
@@ -50,6 +52,23 @@ namespace xpedite { namespace perf {
       add(attr);
     }
 
+    void addSamplingEvent(uint32_t eventType_, uint16_t eventSelect_, uint64_t sampleTypeMask_, uint64_t readFormatMask_,
+        bool excludeUser_, bool excludeKernel_) {
+      perf_event_attr attr {};
+      attr.type = eventType_;
+      attr.config = eventSelect_;
+      attr.sample_type = sampleTypeMask_;
+      attr.read_format = readFormatMask_;
+      attr.sample_period = 1;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,8,0)
+      attr.sample_max_stack = 127;
+#endif
+      attr.exclude_user = excludeUser_;
+      attr.exclude_kernel = excludeKernel_;
+      attr.disabled = (_size == 0);
+      add(attr);
+    }
+
     explicit operator bool() const {
       return _size;
     }
@@ -64,5 +83,7 @@ namespace xpedite { namespace perf {
   std::string toString(perf_event_attr attr_);
 
   PerfEventAttrSet buildPerfEventAttrs(const EventSet& eventSet_) noexcept;
+
+  PerfEventAttrSet buildPerfTraceAttrs(const std::vector<int>& traces_) noexcept;
 
 }}
