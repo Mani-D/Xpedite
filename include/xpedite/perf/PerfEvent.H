@@ -19,19 +19,29 @@
 
 namespace xpedite { namespace perf {
 
+  enum class EventType
+  {
+    Core,
+    Fixed,
+    Offcore,
+    Tracepoint,
+    Unknown
+  };
+
   class PerfEvent
   {
-    static const int INVALID_FD;
-    static perf_event_mmap_page* INVALID_ADDR;
-
+    EventType _type;
     int _fd;
     perf_event_mmap_page* _handle;
     pid_t _tid;
 
     public:
 
+    static const int INVALID_FD;
+    static perf_event_mmap_page* INVALID_ADDR;
+
     PerfEvent() noexcept
-      : _fd {INVALID_FD}, _handle {INVALID_ADDR}, _tid {} {
+      : _type {EventType::Unknown}, _fd {INVALID_FD}, _handle {INVALID_ADDR}, _tid {} {
     }
 
     PerfEvent(perf_event_attr attr_, int gid_, pid_t tid_) noexcept;
@@ -39,13 +49,15 @@ namespace xpedite { namespace perf {
     PerfEvent& operator=(const PerfEvent&) = delete;
 
     PerfEvent(PerfEvent&& other_) noexcept
-      : _fd {other_._fd}, _handle {other_._handle}, _tid {other_._tid} {
+      : _type {other_._type}, _fd {other_._fd}, _handle {other_._handle}, _tid {other_._tid} {
+      other_._type = EventType::Unknown;
       other_._fd = INVALID_FD;
       other_._handle = {INVALID_ADDR};
       other_._tid = {};
     }
 
     PerfEvent& operator=(PerfEvent&& other_) noexcept {
+      std::swap(_type, other_._type);
       std::swap(_fd, other_._fd);
       std::swap(_handle, other_._handle);
       std::swap(_tid, other_._tid);
@@ -53,6 +65,10 @@ namespace xpedite { namespace perf {
     }
 
     ~PerfEvent() noexcept;
+
+    EventType type() const noexcept {
+      return _type;
+    }
 
     int fd() const noexcept {
       return _fd;

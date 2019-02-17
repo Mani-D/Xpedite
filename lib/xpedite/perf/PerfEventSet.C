@@ -56,8 +56,8 @@ namespace xpedite { namespace perf {
   PerfEventSet buildPerfEvents(const PerfEventAttrSet& eventAttrs_, uint64_t generation_, pid_t tid_) {
     PerfEventSet perfEventSet {generation_};
 
-    for(int i=0; i < eventAttrs_._size; ++i) {
-      if(!perfEventSet.add(eventAttrs_._values[i], tid_)) {
+    for(const auto& eventAttr : eventAttrs_.values()) {
+      if(!perfEventSet.add(eventAttr, tid_)) {
         return {};
       }
     }

@@ -30,7 +30,7 @@ namespace xpedite { namespace perf {
       PerfEvtSelReg reg {};
       reg._value = eventSet_._gpEvtSel[i];
       uint16_t eventSelect (reg._f._unitMask << 8 | reg._f._eventSelect);
-      perfEventAttrSet.addPMUEvent(PERF_TYPE_RAW, eventSelect, !reg._f._user, !reg._f._kernel);
+      perfEventAttrSet.addEvent(PERF_TYPE_RAW, eventSelect, !reg._f._user, !reg._f._kernel);
     }
 
     FixedEvtSelReg fixedEvtSelReg {};
@@ -40,20 +40,19 @@ namespace xpedite { namespace perf {
     if(eventSet_._fixedEvtGlobalCtl & (0x1 << FixedPmcSet::INST_RETIRED_ANY)) {
       bool excludeUser = !maskEnabledInUserSpace(fixedEvtSelReg._f._enable0);
       bool excludeKernel = !maskEnabledInKernel(fixedEvtSelReg._f._enable0);
-      perfEventAttrSet.addPMUEvent(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, excludeUser, excludeKernel);
+      perfEventAttrSet.addEvent(PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS, excludeUser, excludeKernel);
     }
 
     if(eventSet_._fixedEvtGlobalCtl & (0x1 << FixedPmcSet::CPU_CLK_UNHALTED_CORE)) {
       bool excludeUser = !maskEnabledInUserSpace(fixedEvtSelReg._f._enable1);
       bool excludeKernel = !maskEnabledInKernel(fixedEvtSelReg._f._enable1);
-      perfEventAttrSet.addPMUEvent(PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES, excludeUser, excludeKernel);
+      perfEventAttrSet.addEvent(PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES, excludeUser, excludeKernel);
     }
 
     if(eventSet_._fixedEvtGlobalCtl & (0x1 << FixedPmcSet::CPU_CLK_UNHALTED_REF)) {
-      // https://lwn.net/articles/373473
       bool excludeUser = !maskEnabledInUserSpace(fixedEvtSelReg._f._enable2);
       bool excludeKernel = !maskEnabledInKernel(fixedEvtSelReg._f._enable2);
-      perfEventAttrSet.addPMUEvent(PERF_TYPE_RAW, 0x13c, excludeUser, excludeKernel);
+      perfEventAttrSet.addEvent(PERF_TYPE_RAW, PerfEventAttrSet::PERF_RAW_CPU_CLK_UNHALTED_REF, excludeUser, excludeKernel);
     }
     return perfEventAttrSet;
   }
@@ -95,8 +94,8 @@ namespace xpedite { namespace perf {
 
   std::string PerfEventAttrSet::toString() const {
     std::ostringstream os;
-    for(int i=0; i < _size; ++i) {
-      os << xpedite::perf::toString(_values[i]) << "\n";
+    for(const auto& eventAttr : _pmuEventAttrs) {
+      os << xpedite::perf::toString(eventAttr) << "\n";
     }
     return os.str();
   }
