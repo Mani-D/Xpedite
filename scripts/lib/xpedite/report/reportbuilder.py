@@ -173,7 +173,7 @@ class ReportBuilder(object):
     timeline = timelineCollection[0]
     timepoint = timeline[0]
     if timepoint.pmcNames:
-      return PMU_BEGIN + PMU_BODY.format(uid, len(timelineCollection), len(timeline)+1) + PMU_END
+      return PMU_BEGIN + PMU_BODY.format(uid, len(timelineCollection), len(timeline)+2) + PMU_END
     return ''
 
   @staticmethod
@@ -226,17 +226,20 @@ class ReportBuilder(object):
       row.td('{:,}'.format(timeline.txnId), klass=TD_KEY)
       if logData:
         row.td('{}'.format(timeline.data), klass=TD_KEY)
-      row.td('{:,}'.format(timeline.inception), klass=TD_KEY)
+
+      inceptionTitle = self.buildPmcTable(timeline[0].pmcNames, timeline.deltaPmcs, None)
+      cellId = 'tp-{}-{}-{}'.format(uid, i, 0)
+      row.td(klass=TD_KEY).a('{:,}'.format(timeline.inception), title=str(inceptionTitle), id=cellId)
 
       j = None
       for j, timepoint in enumerate(timeline):
         if logTimeline:
           row.td(DURATION_FORMAT.format(timepoint.point))
           if j < len(timeline) -1: # skip the duration for the last time point, since it's always 0
-            self.buildTimepointCell(row, uid, i, j, timepoint)
+            self.buildTimepointCell(row, uid, i, j+1, timepoint)
         elif j < len(timeline) -1: # skip the duration for the last time point, since it's always 0
-          self.buildTimepointCell(row, uid, i, j, timepoint)
-      self.buildTimepointCell(row, uid, i, j, timeline.endpoint, klass=TD_END)
+          self.buildTimepointCell(row, uid, i, j+1, timepoint)
+      self.buildTimepointCell(row, uid, i, j+1, timeline.endpoint, klass=TD_END)
 
       if logAbsoluteValues:
         for j, probe in enumerate(probes):

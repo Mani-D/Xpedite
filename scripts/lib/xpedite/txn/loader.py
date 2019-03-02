@@ -294,7 +294,8 @@ class BoundedTxnLoader(AbstractTxnLoader):
       return txn
     self.resumeFragment = None
     self.nextFragmentId += 1
-    return Transaction(counter, self.nextFragmentId)
+    prevCounter = self.currentTxn[-1] if self.currentTxn else None
+    return Transaction(counter, self.nextFragmentId, prevCounter=prevCounter)
 
   def endLoad(self):
     """Marks end of the current load session"""
