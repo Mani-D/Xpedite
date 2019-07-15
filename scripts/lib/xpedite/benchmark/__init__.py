@@ -23,15 +23,16 @@ LOGGER = logging.getLogger(__name__)
 
 BENCHMARK_DIR_NAME = 'benchmark'
 
-def makeBenchmark(profiles, path):
+def makeBenchmark(profiles, path, name=None):
   """
   Persists profiles to the file system for future benchmarking
 
   :param profiles: Profile data for the benchmark
   :param path: File system path to persist the benchmark
+  :param name: Name of the benchmark to be displayed in reports
 
   """
-  benchmarkName = os.path.basename(path)
+  benchmarkName = name if name else os.path.basename(path)
   path = os.path.join(path, BENCHMARK_DIR_NAME)
   if os.path.exists(path):
     raise Exception('Failed to make benchmark - path {} already exists'.format(path))

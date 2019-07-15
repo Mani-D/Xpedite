@@ -41,7 +41,7 @@ def makeBenchmarkInfo(benchmarkName, profiles, path):
   config = ConfigParser.RawConfigParser()
   config.add_section(BENCHMARK_SECTION)
   config.set(BENCHMARK_SECTION, BENCHMARK_NAME_KEY, benchmarkName)
-  legend = '{} run at {}'.format(benchmarkName, str(date.today()))
+  legend = '{} generated at {}'.format(benchmarkName, str(date.today()))
   config.set(BENCHMARK_SECTION, BENCHMARK_LEGEND_KEY, legend)
 
   cpuInfo = profiles.cpuInfo

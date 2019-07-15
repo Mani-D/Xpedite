@@ -53,14 +53,15 @@ class Report(object):
     """Unique run id for this report"""
     return self.app.runId
 
-  def makeBenchmark(self, path):
+  def makeBenchmark(self, path, name=None):
     """
     Persists samples for current run in the given path for future benchmarking
 
     :param path: Path to persist profiles for the current session
+    :param name: Name of the benchmark to be displayed in reports
 
     """
-    return self.profiles.makeBenchmark(path)
+    return self.profiles.makeBenchmark(path, name)
 
 def generateEnvironmentReport(app, repo, resultOrder, classifier, txnFilter, benchmarkPaths):
   """
