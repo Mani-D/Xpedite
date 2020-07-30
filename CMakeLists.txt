@@ -155,3 +155,16 @@ if(BUILD_VIVIFY)
 message("Starting Vivify Library Setup")
 add_subdirectory(vivify)
 endif()
+
+######################### package #############################
+set(CPACK_GENERATOR "DEB;RPM")
+set(CPACK_PACKAGE_CONTACT "Manikandan Dhamodharan")
+set(CPACK_PACKAGE_VENDOR "Manikandan Dhamodharan")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Xpedite profiler")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_NAME "Xpedite")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_RPM_PACKAGE_RELEASE "1.0.0")
+
+include(CPack)
+
