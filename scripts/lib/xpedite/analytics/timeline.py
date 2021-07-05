@@ -34,6 +34,7 @@ class Timeline(object):
     self.points = []
     self.endpoint = None
     self.inception = None
+    self.deltaPmcs = None
 
   def addTimePoint(self, timePoint):
     """
@@ -481,6 +482,8 @@ def buildTimelineStats(category, route, probes, txnSubCollection): # pylint: dis
         maxTsc = max(maxTsc, tsc)
         if not firstCounter:
           firstCounter = prevCounter = counter
+          if txn.prevCounter and pmcCount != 0:
+            timeline.deltaPmcs = [firstCounter.pmcs[k] - txn.prevCounter.pmcs[k] for k in range(pmcCount)]
         elif tsc:
           duration = cpuInfo.convertCyclesToTime(tsc - prevCounter.tsc)
           point = cpuInfo.convertCyclesToTime(prevCounter.tsc - firstCounter.tsc)

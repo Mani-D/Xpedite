@@ -64,7 +64,7 @@ FLOT_CHOICE_BLOCK_FMT = """
 <div id="{0}FlotContainer" class="flotContainer">
   <div id="{0}FlotPlaceholder" class="flotPlaceholder"> </div>
   <div id="{0}FlotChoiceContainer" class="flotChoiceContainer">
-    <span>This chart plots the constituent latency of all the transactions for current run side by side with {1}s.
+    <span>This chart plots {1} for current run and benchmarks.
     The x-axis represents the transaction id and y-axis represents the constituent latency in Micro Seconds.
     select the curves to be plotted.</span>
   </div>
@@ -133,7 +133,7 @@ class FlotBuilder(object):
           constituentSelector.option(constituentName)
     return element
 
-  def buildFlot(self, category, title, timelineStats, uid, flotData, flotChoiceName=None):
+  def buildFlot(self, category, title, timelineStats, uid, flotData, flotType):
     """
     Builds line charts for elapsed duration/pmc data from each pair of probes in the timelines
 
@@ -148,7 +148,7 @@ class FlotBuilder(object):
     flotTitle = str(self.buildFlotTitle(category, title, timelineStats, uid))
     flotJsBegin = FLOT_JS_BEGIN_FMT.format(uid)
     flotBody = FLOT_JS_BODY_FMT.format(json.dumps(flotData), uid)
-    flotChoiceBlock = FLOT_CHOICE_BLOCK_FMT.format(uid, flotChoiceName if flotChoiceName else uid)
+    flotChoiceBlock = FLOT_CHOICE_BLOCK_FMT.format(uid, flotType)
     return flotTitle + flotJsBegin + flotBody + FLOT_JS_END + flotChoiceBlock
 
   def buildBenchmarkFlot(self, category, timelineStats, benchmarkTlsMap):
@@ -169,7 +169,7 @@ class FlotBuilder(object):
         series.append((benchmarkName, benchmarkTls.getTscDeltaSeriesCollection()[i]))
       seriesMap = FlotBuilder.buildFlotSeriesMap(series, uid)
       flotData.append(seriesMap)
-    flot = self.buildFlot(category, 'Transaction latency', timelineStats, uid, flotData)
+    flot = self.buildFlot(category, 'Transaction latency', timelineStats, uid, flotData, 'latency (us)')
     if timelineStats.isEventsEnabled():
       flot += self.buildPMUFlot(category, timelineStats)
     return flot
@@ -192,4 +192,4 @@ class FlotBuilder(object):
         series.append((eventName, deltaSeriesRepo[eventName][i]))
       seriesMap = FlotBuilder.buildFlotSeriesMap(series, uid)
       flotData.append(seriesMap)
-    return self.buildFlot(category, 'PMU Counters', timelineStats, uid, flotData, flotChoiceName='pmu counter')
+    return self.buildFlot(category, 'PMU Counters', timelineStats, uid, flotData, 'pmu counters')

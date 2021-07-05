@@ -83,15 +83,16 @@ class Profiles(object):
     """
     self.profiles.append(profile)
 
-  def makeBenchmark(self, path):
+  def makeBenchmark(self, path, name=None):
     """
     Persists samples for current run in the given path for future benchmarking
 
     :param path: Path to persist profiles for the current session
+    :param name: Name of the benchmark, used while rendering reports
 
     """
     from xpedite import benchmark
-    return benchmark.makeBenchmark(self, path)
+    return benchmark.makeBenchmark(self, path, name)
 
   @property
   def cpuInfo(self):

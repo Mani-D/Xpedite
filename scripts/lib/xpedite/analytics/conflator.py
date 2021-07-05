@@ -166,6 +166,7 @@ class Conflator(object):
     """
     timeline = Timeline(srcTl.txn)
     timeline.inception = srcTl.inception
+    timeline.deltaPmcs = srcTl.deltaPmcs
     timeline.points = self.conflateTimepoints(srcTl.points, routeIndices, eventsMap, topdownMetrics)
     timeline.endpoint = self.conflateTimepoints(
       timeline.points, [0, len(timeline.points) -1],

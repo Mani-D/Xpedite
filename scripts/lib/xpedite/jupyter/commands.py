@@ -266,7 +266,8 @@ class FilteredProfiles(object):
     self.profiles = profiles
 
   def __repr__(self):
-    return str([Txns(profile) for profile in self.profiles])
+    str([Txns(profile) for profile in self.profiles])
+    return ''
 
   def plot(self, routePoints=None):
     """

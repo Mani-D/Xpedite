@@ -20,8 +20,9 @@ class Transaction(object):
   execution to achieve the functionality.
   """
 
-  def __init__(self, counter, txnId):
+  def __init__(self, counter, txnId, prevCounter = None):
     self.txnId = txnId
+    self.prevCounter = prevCounter
     self.counters = [counter]
     self.probeMap = None
     self.route = None

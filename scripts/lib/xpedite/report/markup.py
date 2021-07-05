@@ -65,7 +65,22 @@ HTML_BEGIN_FMT = """
   <script> {xpedite} </script>
   <script>
   $(document).ready(function () {{
-    jQuery('table.tableReport').tablesorter();
+    jQuery.tablesorter.addParser({{
+      id: "commaSeperatedNumber",
+      is: function(s) {{
+        return /^[0-9]?[0-9,\.]*$/.test(s);
+      }},
+      format: function(s) {{
+        return jQuery.tablesorter.formatFloat( s.replace(/,/g,'') );
+      }},
+      type: "numeric"
+    }});
+    jQuery('table.tableReport').tablesorter({{
+      headers: {{
+        1: {{sorter: 'commaSeperatedNumber'}},
+        2: {{sorter: 'commaSeperatedNumber'}}
+      }}
+    }});
     $('.tableReport').floatThead({{
       position: 'fixed'
     }});
