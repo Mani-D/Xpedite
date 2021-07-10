@@ -24,17 +24,42 @@ namespace xpedite { namespace perf {
 
   perf_event_mmap_page* PerfEvent::INVALID_ADDR {reinterpret_cast<perf_event_mmap_page*>(MAP_FAILED)};
 
+  const int SAMPLES_BUFFER_SIZE {(1 + (1 << 4)) * getpagesize()};
+
+  EventType typeOf(perf_event_attr attr_) {
+    //TODO: add support for offcore events
+    switch(attr_.type) {
+      case PERF_TYPE_HARDWARE:
+        return EventType::Fixed;
+      case PERF_TYPE_RAW:
+        if(attr_.config == PerfEventAttrSet::PERF_RAW_CPU_CLK_UNHALTED_REF) {
+          return EventType::Fixed;
+        } else {
+          return EventType::Core;
+        }
+      case PERF_TYPE_TRACEPOINT:
+        return EventType::Tracepoint;
+    }
+    return EventType::Unknown;
+  }
+
   PerfEvent::PerfEvent(perf_event_attr attr_, pid_t tid_, int gid_) noexcept 
     : _fd {INVALID_FD}, _handle {INVALID_ADDR}, _tid {tid_} {
 
-    _fd = perfEventsApi()->open(&attr_, tid_, -1, gid_, 0);
+    _type = typeOf(attr_);
+
+    bool isLeader {gid_ == INVALID_FD};
+    bool isTracePoint {attr_.type == PERF_TYPE_TRACEPOINT};
+    //unsigned long flags {isTracePoint && isLeader ? PERF_FLAG_FD_OUTPUT : 0};
+    _fd = perfEventsApi()->open(&attr_, tid_, -1, gid_, PERF_FLAG_FD_OUTPUT);
     if (_fd == INVALID_FD) {
       xpedite::util::Errno err;
       XpediteLogCritical << "failed to open pmu event (" << toString(attr_) << ") - " << err.asString() << XpediteLogEnd;
       return;
     }
 
-    _handle = perfEventsApi()->map(_fd, getpagesize());
+    auto bufferSize = (isLeader && isTracePoint ? SAMPLES_BUFFER_SIZE : getpagesize());
+    _handle = perfEventsApi()->map(_fd, bufferSize);
     if(_handle == INVALID_ADDR) {
       xpedite::util::Errno err;
       XpediteLogCritical << "failed to map pmu event (" << attr_.config << ") - " << err.asString() << XpediteLogEnd;
