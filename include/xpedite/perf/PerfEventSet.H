@@ -16,40 +16,51 @@
 #include <xpedite/perf/PerfEventAttrSet.H>
 #include <unistd.h>
 #include <array>
+#include <vector>
 
 namespace xpedite { namespace perf {
 
   class PerfEventSet
   {
     std::array<PerfEvent, XPEDITE_PMC_CTRL_CORE_EVENT_MAX> _events;
+    std::vector<PerfEvent> _tracepoints;
     int _size;
+    int _groupFd;
+    perf_event_mmap_page* _recordsBuffer;
     uint64_t _generation;
     bool _active;
 
     public:
 
     PerfEventSet()
-      : _events {}, _size {}, _generation {}, _active {} {
+      : _events {}, _tracepoints {}, _size {}, _groupFd {PerfEvent::INVALID_FD}, _recordsBuffer {}, _generation {}, _active {} {
     }
 
     explicit PerfEventSet(uint64_t generation_)
-      : _events {}, _size {}, _generation {generation_}, _active {} {
+      : _events {}, _tracepoints {}, _size {}, _groupFd {PerfEvent::INVALID_FD}, _recordsBuffer {},
+        _generation {generation_}, _active {} {
     }
 
     PerfEventSet(const PerfEventSet& other_) noexcept = delete;
     PerfEventSet& operator=(const PerfEventSet& other_) noexcept = delete;
 
     PerfEventSet(PerfEventSet&& other_) noexcept
-      : _events {std::move(other_._events)}, _size {other_._size}, _generation {other_._generation},
+      : _events {std::move(other_._events)}, _tracepoints {std::move(other_._tracepoints)}, _size {other_._size},
+        _groupFd {other_._groupFd}, _recordsBuffer {other_._recordsBuffer}, _generation {other_._generation},
         _active {other_._active} {
         other_._size = {};
+        other_._groupFd = PerfEvent::INVALID_FD;
+        other_._recordsBuffer = {};
         other_._generation = {};
         other_._active = {};
     }
 
     PerfEventSet& operator=(PerfEventSet&& other_) noexcept {
       std::swap(_events, other_._events);
+      std::swap(_tracepoints, other_._tracepoints);
       std::swap(_size, other_._size);
+      std::swap(_groupFd, other_._groupFd);
+      std::swap(_recordsBuffer, other_._recordsBuffer);
       std::swap(_generation, other_._generation);
       std::swap(_active, other_._active);
       return *this;
@@ -68,11 +79,11 @@ namespace xpedite { namespace perf {
     bool deactivate();
 
     int groupFd() const noexcept {
-      return _size > 0 ? _events[0].fd() : -1;
+      return _groupFd;
     }
 
     perf_event_mmap_page* buffer() const noexcept {
-      return _size > 0 ? _events[0].buffer() : nullptr;
+      return _recordsBuffer;
     }
 
     pid_t tid() const noexcept {
