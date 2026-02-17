@@ -1,7 +1,9 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
-mainClassName = 'com.xpedite.Xpedite'
+application {
+  mainClass.set('com.xpedite.Xpedite')
+}
 
 buildDir = new File(rootProject.projectDir, "build/jni");
 

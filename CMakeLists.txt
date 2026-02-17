@@ -11,7 +11,7 @@
 #
 ################################################################################################
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.31.6)
 project(xpedite C CXX ASM)
 if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.2)
   message(FATAL_ERROR "Xpedite requires GCC 5.2 or later to build.")
